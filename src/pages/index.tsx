@@ -6,9 +6,13 @@ import { useState, createContext } from "react";
 export default function Home() {
     const [tab, setTab] = useState<string>("Cadeiras");
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [modelArgs, setModelArgs] = useState<ModalArgs | undefined>();
+    //TODO: implement args from specialization
     return (
         <ScheduleProvider>
-            {isOpen && <Modal close={() => setIsOpen(false)} />}
+            {isOpen && (
+                <Modal close={() => setIsOpen(false)} args={modelArgs} />
+            )}
             <div className="sm:grid sm:grid-cols-6 sm:gap-3 flex flex-col-reverse h-screen">
                 <div className="sm:col-span-1 bg-blue-900 flex  sm:items-start justify-center items-center p-2">
                     <ul
@@ -37,7 +41,15 @@ export default function Home() {
                 </div>
                 <div className="sm:col-span-5 pt-3 px-3 pb-2 grow overflow-y-auto">
                     {tab == "Cadeiras" ? (
-                        <List open={() => setIsOpen(true)} />
+                        <List
+                            open={(args = "") => {
+                                setIsOpen(true);
+                                setModelArgs({
+                                    especializations: ["SD", "CD"],
+                                    id: ""
+                                });
+                            }}
+                        />
                     ) : (
                         <Table />
                     )}
@@ -47,15 +59,26 @@ export default function Home() {
     );
 }
 
+type ModalArgs = {
+    especializations: string[];
+    id: string;
+};
+
 type ModalProps = {
     close: () => void;
+    args?: ModalArgs;
+    onSubmit?: () => void;
 };
-function Modal({ close }: ModalProps): JSX.Element {
-    const especializations = [
-        "Sistemas distribuidos",
-        "Ciencia de Dados",
-        "Inteligencia Artificial"
-    ];
+function Modal({
+    close,
+    args = { especializations: [], id: "" }
+}: ModalProps): JSX.Element {
+    // const especializations = [
+    //     "Sistemas distribuidos",
+    //     "Ciencia de Dados",
+    //     "Inteligencia Artificial"
+    // ];
+    const especializations = args.especializations;
     const [selected, setSelected] = useState<number>(0);
     const [isVisible, setIsVisible] = useState<boolean>(false);
 
